@@ -3,19 +3,19 @@
     "Author": "shak",
     "Name": "Lu Tokens",
     "Punchline": "View your Lu Token balance.",
-    "Description": "While you are on a tank or melee class (or Summoner, Red Mage, or Blue Mage) this plugin will draw a ring around you and your target. The ring around your target indicates the max melee distance, and the ring around you indicates your hitbox. When these two rings overlap, you are in max melee. The rings will switch to configurable colors depending on if you are within max melee range or not.",
-    "InternalName": "MaxMeleeRing",
-    "AssemblyVersion": "1.0.2.5",
-    "RepoUrl": "https://github.com/doggjoe9/MaxMeleeRange",
+    "Description": "Buy low, sell high. Copium. Quad-boosted btw.",
+    "InternalName": "LuCoin",
+    "AssemblyVersion": "1.0.0.0",
+    "RepoUrl": "https://github.com/doggjoe9/LuCoin",
     "ApplicableVersion": "any",
     "DalamudApiLevel": 7,
-    "DownloadLinkInstall": "https://github.com/doggjoe9/MaxMeleeRange/releases/latest/download/latest.zip",
+    "DownloadLinkInstall": "https://github.com/doggjoe9/LuCoin/releases/latest/download/latest.zip",
     "IsHide": false,
     "IsTestingExclusive": false,
-    "DownloadLinkTesting": "https://github.com/doggjoe9/MaxMeleeRange/releases/latest/download/latest.zip",
-    "DownloadLinkUpdate": "https://github.com/doggjoe9/MaxMeleeRange/releases/latest/download/latest.zip",
+    "DownloadLinkTesting": "https://github.com/doggjoe9/LuCoin/releases/latest/download/latest.zip",
+    "DownloadLinkUpdate": "https://github.com/doggjoe9/LuCoin/releases/latest/download/latest.zip",
     "DownloadCount": 0,
-    "LastUpdated": "1668745648",
-    "Changelog": "(1.0.2.0)\n - (Feature) Target orientation tracking\n - (Feature) Display true cards/intercards on target hitbox\n - (Fix) Made certain settings disappear when they aren't relevant.\n(1.0.2.5)\n - (Patch) Changed how the plugin culls segments that should not be visible, adding a Z Bias parameter for adjusting how sensitive it is to items going out of view. Higher Z Bias means the plugin will be more likely to cull lines near the edge of the screen. Lower Z Bias means the game will be less likely to cull lines near the edge of the screen.\n - (Patch) Fixed a bug where the plugin would draw the directional spokes even when the player was looking away."
+    "LastUpdated": "1684538208",
+    "Changelog": ""
   }
 ]
