@@ -1,10 +1,8 @@
 ﻿using Dalamud.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Mime;
 
 namespace LuCoin.Network
 {
@@ -22,15 +20,23 @@ namespace LuCoin.Network
 		private const string dataUri = @"https://docs.google.com/spreadsheets/d/e/2PACX-1vQRJdAuhBTOn9FsZfHBeh_JfbUs5xJae7ViwV2rNCBsibYr7WwC_UNvXwN2z4Q8zk7RvrPDKVrqAjax/pub";
 		private const string dataUriParam = @"?output=csv";
 
-		/// <summary>
-		/// The minimum amount of time the RequestManager must wait before creating a REST request.
-		/// </summary>
-		public static readonly TimeSpan ThrottleTimespan = TimeSpan.FromSeconds(2);
+		// don't use these anymore they are not millisecond accurate
+		///// <summary>
+		///// The minimum amount of time the RequestManager must wait before creating a REST request.
+		///// </summary>
+		//public static readonly TimeSpan ThrottleTimespan = TimeSpan.FromSeconds(2);
+
+		///// <summary>
+		///// Timestamp marking the moment the last REST request completed.
+		///// </summary>
+		//private static DateTime lastRequestTimestamp = DateTime.MinValue;
+
+		private static long throttleTimespan = 2000;
 
 		/// <summary>
-		/// Timestamp marking the moment the last REST request completed.
+		/// A stopwatch to prevent rapid requests.
 		/// </summary>
-		private static DateTime lastRequestTimestamp = DateTime.MinValue;
+		private static Stopwatch stopwatch = new Stopwatch();
 
 		/// <summary>
 		/// A lock to avoid duplicate requests putting unecessary strain on the host. Keep this as long as more than
@@ -51,13 +57,13 @@ namespace LuCoin.Network
 		/// </summary>
 		private Dictionary<string, int> accounts = new Dictionary<string, int>();
 
+		// for now, there is no need for this to be retreived through a getter rather than returned by. Update. but if
+		// refreshing data was not done on demand, this would be necessary. Since it does not affect runtime behavior,
+		// i am leaving this open to that possibility.
 		/// <summary>
 		/// Gets the map of account balances. Keys are players' full in-game names (verbatim) and values are integers
 		/// denoting their current balance.
 		/// </summary>
-		// for now, there is no need for this to be retreived through a getter rather than returned by. Update. but if
-		// refreshing data was not done on demand, this would be necessary. Since it does not affect runtime behavior,
-		// i am leaving this open to that possibility.
 		public Dictionary<string, int> Accounts {
 			get {
 				// trys to synchronously grab the info fresh from the database every time it is requested. inefficient,
@@ -65,9 +71,10 @@ namespace LuCoin.Network
 				// too rapidly, or if a race condition occurs, the method will simply throw an exception
 				try {
 					Update();
-				} catch(RapidRequestException) {
+				} catch(RapidRequestException e) {
 					PluginLog.Error("The user tried to query too quickly. Unable to update accounts.");
 					Services.ChatGui.PrintError("Slow down. Results may be outdated.");
+					PluginLog.LogError(e.Message);
 				} catch(HttpRequestException) {
 					PluginLog.Error("Unexpected HTTP error. Unable to update accounts.");
 					Services.ChatGui.PrintError("An unexpected error has occured. Results may be outdated.");
@@ -91,6 +98,7 @@ namespace LuCoin.Network
 		/// <param name="init">if true, perform an <see cref="Update"/> on creation.</param>
 		public RequestManager(bool init = true) {
 			client.BaseAddress = new Uri(dataUri);
+			stopwatch.Start();
 			if (init)
 				Update();
 		}
@@ -109,7 +117,9 @@ namespace LuCoin.Network
 			// GET - inside of lock to avoid race conditions and duplicates
 			lock (_globalUpdateLock) {
 				// gatekeeping
-				if (lastRequestTimestamp - DateTime.Now <= ThrottleTimespan)
+				//if (lastRequestTimestamp - DateTime.Now <= ThrottleTimespan) // old gatekeeping
+				//	throw new RapidRequestException();
+				if (stopwatch.ElapsedMilliseconds < throttleTimespan)
 					throw new RapidRequestException();
 
 				// GET
@@ -129,7 +139,8 @@ namespace LuCoin.Network
 				}
 
 				// finally, update the last request timestamp
-				lastRequestTimestamp = DateTime.Now;
+				//lastRequestTimestamp = DateTime.Now; // old gatekeeping
+				stopwatch.Restart();
 			}
 
 			// process

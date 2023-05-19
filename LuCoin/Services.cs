@@ -27,7 +27,7 @@ namespace LuCoin {
 			pluginInterface.Create<Services>();
 			PluginInterface = pluginInterface;
 
-			RequestManager = new RequestManager();
+			RequestManager = new RequestManager(false);
 		}
 	}
 }
